@@ -1,1 +1,125 @@
-coming soon
+$engine: 3
+$onesync: 'on'
+name: Hexa Framework
+version: 1.0.0
+author: Hexa Development
+description: A modern, modular RedM roleplay framework. Installs hexa_core, hexa_inventory and hexa_progbar with oxmysql, ready to boot.
+
+tasks:
+  # ────────────────────────────────────────────────
+  #  Base files from this recipe repository
+  # ────────────────────────────────────────────────
+  - action: download_github
+    src: https://github.com/hexa-development/txAdmin
+    ref: main
+    dest: ./tmp/hexa-recipe
+
+  - action: move_path
+    src: ./tmp/hexa-recipe/server.cfg
+    dest: ./server.cfg
+
+  # ────────────────────────────────────────────────
+  #  Database
+  #  hexa_core installs its own schema from install.sql
+  #  on first boot, so there is no SQL file to import here.
+  # ────────────────────────────────────────────────
+  - action: connect_database
+
+  # ────────────────────────────────────────────────
+  #  Base server resources
+  #  spawnmanager is used by hexa_core as a spawn fallback.
+  #  The FiveM-only resources in here are downloaded but never
+  #  started - server.cfg only ensures what RedM can run.
+  # ────────────────────────────────────────────────
+  - action: download_github
+    src: https://github.com/citizenfx/cfx-server-data
+    subpath: resources
+    dest: ./resources/[cfx-default]
+
+  # ────────────────────────────────────────────────
+  #  Database driver - required by hexa_core and hexa_inventory
+  # ────────────────────────────────────────────────
+  - action: download_file
+    url: https://github.com/CommunityOx/oxmysql/releases/latest/download/oxmysql.zip
+    path: ./tmp/files/oxmysql.zip
+
+  - action: unzip
+    src: ./tmp/files/oxmysql.zip
+    dest: ./resources/[standalone]
+
+  # ────────────────────────────────────────────────
+  #  Hexa Framework
+  # ────────────────────────────────────────────────
+  - action: download_github
+    src: https://github.com/hexa-development/hexa_core
+    ref: main
+    dest: ./resources/[hexa]/hexa_core
+
+  - action: download_github
+    src: https://github.com/hexa-development/hexa_progbar
+    ref: main
+    dest: ./resources/[hexa]/hexa_progbar
+
+  - action: download_github
+    src: https://github.com/hexa-development/hexa_inventory
+    ref: main
+    dest: ./resources/[hexa]/hexa_inventory
+
+  # ────────────────────────────────────────────────
+  #  Compatibility bridges (installed, not started)
+  #  The repository holds two resources - rsg-core and vorp_core.
+  #  Enable one in server.cfg only if you are migrating existing
+  #  RSG or VORP scripts, and never alongside the real core of
+  #  the same name.
+  # ────────────────────────────────────────────────
+  - action: download_github
+    src: https://github.com/hexa-development/hexa-bridge
+    ref: main
+    dest: ./tmp/hexa-bridge
+
+  - action: move_path
+    src: ./tmp/hexa-bridge/rsg-core
+    dest: ./resources/[hexa-bridge]/rsg-core
+
+  - action: move_path
+    src: ./tmp/hexa-bridge/vorp_core
+    dest: ./resources/[hexa-bridge]/vorp_core
+
+  # ────────────────────────────────────────────────
+  #  Deployment defaults
+  #
+  #  The shipped config/main.lua defaults suit a developer box,
+  #  not a fresh deployment:
+  #
+  #  IdentifierType 'steam'  kicks every player who did not launch
+  #                          through Steam. 'license' works for all.
+  #  MultiCharacter true     hands spawning to hexa_multicharacter,
+  #                          which is not part of this recipe, so the
+  #                          player would never spawn. false enables
+  #                          auto-login instead.
+  # ────────────────────────────────────────────────
+  - action: replace_string
+    mode: literal
+    file: ./resources/[hexa]/hexa_core/config/main.lua
+    search: "Config.IdentifierType = 'steam'"
+    replace: "Config.IdentifierType = 'license'"
+
+  - action: replace_string
+    mode: literal
+    file: ./resources/[hexa]/hexa_core/config/main.lua
+    search: "Config.MultiCharacter = true"
+    replace: "Config.MultiCharacter = false"
+
+  # ────────────────────────────────────────────────
+  #  Fill in {{serverEndpoints}}, {{dbConnectionString}},
+  #  {{svLicense}}, {{maxClients}}, {{serverName}} ...
+  # ────────────────────────────────────────────────
+  - action: replace_string
+    mode: all_vars
+    file: ./server.cfg
+
+  # ────────────────────────────────────────────────
+  #  Clean up
+  # ────────────────────────────────────────────────
+  - action: remove_path
+    path: ./tmp
