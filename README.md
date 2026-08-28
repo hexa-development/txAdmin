@@ -1,5 +1,9 @@
 <div align="center">
 
+<a href="https://github.com/hexa-development">
+  <img src="https://raw.githubusercontent.com/hexa-development/.github/main/assets/banner.png" alt="Hexa Development" width="880">
+</a>
+
 # HEXA TXADMIN RECIPE
 
 ### One-click deployment recipe for a Hexa Framework server
@@ -100,6 +104,7 @@ selection resource in place.
 | :--- | :--- |
 | [`hexacore.yaml`](hexacore.yaml) | The txAdmin recipe |
 | [`server.cfg`](server.cfg) | Config template the recipe moves into the server root |
+| [`myLogo.png`](myLogo.png) | Server icon, 96×96 as RedM requires, loaded by `load_server_icon` |
 
 `server.cfg` is a normal file, so you can read it before deploying and edit it after. The
 recipe fills in `{{serverEndpoints}}`, `{{dbConnectionString}}`, `{{svLicense}}`,

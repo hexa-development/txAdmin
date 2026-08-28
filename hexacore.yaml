@@ -18,6 +18,10 @@ tasks:
     src: ./tmp/hexa-recipe/server.cfg
     dest: ./server.cfg
 
+  - action: move_path
+    src: ./tmp/hexa-recipe/myLogo.png
+    dest: ./myLogo.png
+
   # ────────────────────────────────────────────────
   #  Database
   #  hexa_core installs its own schema from install.sql
